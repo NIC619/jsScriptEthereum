@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@uniswap/sdk": "^2.0.5",
+    "ethers": "^5.0.0-beta.192",
+    "global": "^4.4.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  }
+}
