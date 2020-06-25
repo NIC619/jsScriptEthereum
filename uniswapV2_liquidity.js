@@ -43,9 +43,11 @@ var tt1ApproveAmount; // Amount of tt1 token to approve
 var tt2ApproveAmount; // Amount of tt2 token to approve
 var latestTT1Reserve; // Latest query of amount of tt1 token reserve
 var latestTT2Reserve; // Latest query of amount of tt2 token reserve
-var latestLiquidity; // Latest query of liquidity token
+var ownedLiquidityToken; // Latest query of liquidity token
 var liquidityToWithdraw; // Amount of liquidity token to withdraw(this is to remove liquidity)
+var tokenReceiver = wallet.address; // Address that will receive the tokens
 tt1Contract.balanceOf(wallet.address).then(function (balance) {
+    console.log("First we add liquidity");
     console.log("My TT1 balance:", balance.toString());
     return tt2Contract.balanceOf(wallet.address);
 }).then(function (balance) {
@@ -59,8 +61,8 @@ tt1Contract.balanceOf(wallet.address).then(function (balance) {
     console.log("Timestamp at which latest liquidity update is performed(add or remove):", result.blockTimestampLast);
     return pairContract.balanceOf(wallet.address);
 }).then(function (balance) {
-    latestLiquidity = balance;
-    console.log("Amount of liquidity token we own:", latestLiquidity.toString());
+    ownedLiquidityToken = balance;
+    console.log("Amount of liquidity token we own:", ownedLiquidityToken.toString());
     // Approve with specified amount of tt1
     tt1ApproveAmount = ethers_1.ethers.utils.parseUnits("8000.0", 6);
     // tt1ApproveAmount = latestTT1Reserve.div(10);
@@ -91,10 +93,13 @@ tt1Contract.balanceOf(wallet.address).then(function (balance) {
     var amountAMin = tt1ApproveAmount.div(2); // Minimum amount of A to add to liquidity
     var amountBMin = tt2ApproveAmount.div(2); // Minimum amount of B to add to liquidity
     var deadline = Math.floor(Date.now() / 1000) + 3600; // Deadline when this request(add liquidity) expires
-    return routerContractSigner.addLiquidity(tt1Address, tt2Address, amountADesired, amountBDesired, amountAMin, amountBMin, wallet.address, deadline);
+    console.log("Now adding liquidity with", amountADesired.toString(), "tt1 and", amountBDesired.toString(), "tt2.");
+    console.log("Minimum of tt1 and tt2 to we expect to add respectively:", amountAMin.toString(), "/", amountBMin.toString());
+    return routerContractSigner.addLiquidity(tt1Address, tt2Address, amountADesired, amountBDesired, amountAMin, amountBMin, tokenReceiver, deadline);
 }).then(function (tx) {
     return provider.waitForTransaction(tx.hash);
 }).then(function (tx_receipt) {
+    console.log("Finish adding liquidity");
     // console.log("tx receipt:", tx_receipt);
     return pairContract.getReserves();
 }).then(function (result) {
@@ -105,8 +110,8 @@ tt1Contract.balanceOf(wallet.address).then(function (balance) {
     console.log("Timestamp at which latest liquidity update is performed(add or remove):", result.blockTimestampLast);
     return pairContract.balanceOf(wallet.address);
 }).then(function (balance) {
-    latestLiquidity = balance;
-    console.log("Amount of liquidity token we own:", latestLiquidity.toString());
+    ownedLiquidityToken = balance;
+    console.log("Amount of liquidity token we own:", ownedLiquidityToken.toString());
     return tt1Contract.balanceOf(wallet.address);
 }).then(function (balance) {
     console.log("My TT1 balance:", balance.toString());
@@ -114,7 +119,8 @@ tt1Contract.balanceOf(wallet.address).then(function (balance) {
 }).then(function (balance) {
     console.log("My TT2 balance:", balance.toString());
     // Then we remove liquidity
-    liquidityToWithdraw = latestLiquidity;
+    console.log("Next we remove liquidity");
+    liquidityToWithdraw = ownedLiquidityToken;
     // We need to approve routerV2 to withdraw from pair contract
     return pairContractSigner.approve(routerV2Contract.address, liquidityToWithdraw);
 }).then(function (tx) {
@@ -128,10 +134,13 @@ tt1Contract.balanceOf(wallet.address).then(function (balance) {
     var amountAMin = 0; // The minimum amount of A that must be received
     var amountBMin = 0; // The minimum amount of B that must be received
     var deadline = Math.floor(Date.now() / 1000) + 3600; // Deadline when this request(remove liquidity) expires
-    return routerContractSigner.removeLiquidity(tt1Address, tt2Address, liquidityToWithdraw, amountAMin, amountBMin, wallet.address, deadline);
+    console.log("Now removing", liquidityToWithdraw, "amount of liquidity");
+    console.log("Minimum of tt1 and tt2 to we expect to receive respectively:", amountAMin.toString(), "/", amountBMin.toString());
+    return routerContractSigner.removeLiquidity(tt1Address, tt2Address, liquidityToWithdraw, amountAMin, amountBMin, tokenReceiver, deadline);
 }).then(function (tx) {
     return provider.waitForTransaction(tx.hash);
 }).then(function (tx_receipt) {
+    console.log("Finish removing liquidity");
     // console.log("tx receipt:", tx_receipt);
     return pairContract.getReserves();
 }).then(function (result) {
@@ -142,8 +151,8 @@ tt1Contract.balanceOf(wallet.address).then(function (balance) {
     console.log("Timestamp at which latest liquidity update is performed(add or remove):", result.blockTimestampLast);
     return pairContract.balanceOf(wallet.address);
 }).then(function (balance) {
-    latestLiquidity = balance;
-    console.log("Amount of liquidity token we own:", latestLiquidity.toString());
+    ownedLiquidityToken = balance;
+    console.log("Amount of liquidity token we own:", ownedLiquidityToken.toString());
     return tt1Contract.balanceOf(wallet.address);
 }).then(function (balance) {
     console.log("My TT1 balance:", balance.toString());
@@ -151,5 +160,5 @@ tt1Contract.balanceOf(wallet.address).then(function (balance) {
 }).then(function (balance) {
     console.log("My TT2 balance:", balance.toString());
 })["catch"](function (error) {
-    console.log("Error:", error);
+    console.log("Oops an error occurred:", error);
 });
