@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 var ethers_1 = require("ethers");
-var provider = new ethers_1.ethers.providers.InfuraProvider("rinkeby", "infura_api_key");
-var wallet = new ethers_1.ethers.Wallet("private_key", provider);
+var provider = new ethers_1.ethers.providers.InfuraProvider("rinkeby", "YOUR_INFURA_API_KEY");
+var wallet = new ethers_1.ethers.Wallet("YOUR_PRIVATE_KEY", provider);
 // Factory
 // Factory contract is used to generate token pair contract and query token pair contract address
 // import factoryContractJSON from "./IUniswapV2Factory.json";

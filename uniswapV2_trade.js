@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 var ethers_1 = require("ethers");
-var provider = new ethers_1.ethers.providers.InfuraProvider("rinkeby", "infura_api_key");
-var wallet = new ethers_1.ethers.Wallet("private_key", provider);
+var provider = new ethers_1.ethers.providers.InfuraProvider("rinkeby", "YOUR_INFURA_API_KEY");
+var wallet = new ethers_1.ethers.Wallet("YOUR_PRIVATE_KEY", provider);
 var tt1Address = "0x30eE63b46C73817ef883eA4aB6BAbB954B54588d";
 var tt2Address = "0x4cA466252cc976c4C729E58bAE309032a868E7BF";
 // Pair
